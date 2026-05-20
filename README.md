@@ -123,11 +123,7 @@ Following FAO/FEWS NET standards, OOR is defined as the first day after October 
 
 ---
 
-## Key Findings (update after running)
 
-> _Run the pipeline and paste your results here._
-
----
 
 ## Author
 
