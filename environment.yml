@@ -1,0 +1,30 @@
+name: crop-calendar
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.11
+  - numpy
+  - pandas
+  - xarray
+  - netcdf4
+  - h5netcdf
+  - scipy
+  - scikit-learn
+  - geopandas
+  - shapely
+  - rioxarray
+  - rasterio
+  - matplotlib
+  - seaborn
+  - folium
+  - streamlit
+  - plotly
+  - requests
+  - tqdm
+  - python-dotenv
+  - pip
+  - pip:
+    - cdsapi
+    - pymannkendall
+    - streamlit-folium

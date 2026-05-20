@@ -1,0 +1,11 @@
+{
+  "generated_at": "2026-05-20T11:50:59.819939",
+  "data_source": "synthetic",
+  "n_records": 952,
+  "n_districts": 28,
+  "season_range": [
+    1990,
+    2023
+  ],
+  "missing_pct": 2.94
+}

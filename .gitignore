@@ -1,0 +1,34 @@
+# Data (too large for git — use DVC or document manually)
+data/raw/chirps/*.nc
+data/raw/*.geojson
+
+# Python
+__pycache__/
+*.py[cod]
+.env
+.venv/
+*.egg-info/
+
+# R
+.Rhistory
+.RData
+.Rproj.user/
+renv/library/
+
+# Quarto
+report/_freeze/
+report/.quarto/
+*.html
+*.pdf
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Streamlit
+.streamlit/
+
+# Keep processed data and outputs in git (small CSVs and PNGs are fine)
+!data/processed/*.csv
+!outputs/figures/*.png
+!outputs/tables/*.csv

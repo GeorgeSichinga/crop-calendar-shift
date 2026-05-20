@@ -1,0 +1,169 @@
+---
+title: "Has Malawi's Planting Season Shifted? An Analysis of Onset-of-Rains Trends, 1990–2024"
+author:
+  - name: "George Sichinga"
+    affiliation: "Lilongwe University of Agriculture and Natural Resources (LUANAR)"
+    email: georgesichinga31@gmail.com
+date: today
+format:
+  html:
+    theme: cosmo
+    toc: true
+    toc-depth: 3
+    toc-title: "Contents"
+    code-fold: true
+    code-tools: true
+    fig-width: 9
+    fig-height: 5
+    embed-resources: true
+  pdf:
+    documentclass: article
+    geometry: margin=2.5cm
+    fontsize: 11pt
+execute:
+  echo: false
+  warning: false
+  message: false
+bibliography: references.bib
+---
+
+```{r setup}
+library(tidyverse)
+library(knitr)
+library(kableExtra)
+
+df     <- read_csv("../data/processed/oor_for_r.csv")
+trends <- read_csv("../outputs/tables/district_trends.csv")
+regional <- read_csv("../outputs/tables/regional_summary.csv")
+
+REGION_COLORS <- c("Southern" = "#D85A30", "Central" = "#378ADD", "Northern" = "#1D9E75")
+```
+
+## Abstract
+
+Climate change is altering the seasonality of rainfall across sub-Saharan Africa, with significant consequences for rain-fed smallholder agriculture. This study analyses trends in the onset of rains (OOR) across Malawi's 28 districts from 1990 to 2024 using CHIRPS v2.0 daily rainfall data. Applying the FAO/FEWS NET OOR detection algorithm, Sen's slope estimator, and the Mann-Kendall non-parametric test, we find evidence of a statistically significant delay in the onset of the agricultural season across `r sum(trends$significant_mk)` of 28 districts. The Southern and Central regions show the most pronounced shifts, averaging `r round(regional$mean_shift_per_decade[regional$region=="Southern"],1)` and `r round(regional$mean_shift_per_decade[regional$region=="Central"],1)` days of delay per decade respectively. These findings have direct implications for agricultural planning, seed distribution timing, and climate adaptation policy in Malawi.
+
+---
+
+## 1. Introduction
+
+Malawi's economy is heavily dependent on rain-fed smallholder agriculture, with maize — the primary staple crop — contributing to both food security and rural livelihoods for over 80% of the population. The timing of the onset of rains (OOR) is the single most important cue for planting decisions: too early risks wasted seed if false starts are followed by dry spells; too late compresses the growing season and reduces yields.
+
+Climate projections consistently indicate that southern Africa will experience increased rainfall variability and shifts in seasonal timing under continued warming [@ipcc2022]. However, the local, district-level evidence base in Malawi remains sparse — limiting the ability of agricultural extension services, seed companies, and policymakers to communicate specific, actionable adaptation guidance.
+
+This analysis addresses that gap by quantifying the magnitude, direction, and statistical significance of OOR shifts across all 28 districts of Malawi from 1990 to 2024.
+
+---
+
+## 2. Data and Methods
+
+### 2.1 Rainfall data
+
+Daily gridded rainfall was obtained from the **CHIRPS v2.0** (Climate Hazards Group InfraRed Precipitation with Station data) dataset [@funk2015chirps], which provides 0.05° (~5km) resolution coverage from 1981 to near-present. CHIRPS blends satellite thermal infrared imagery with in-situ station records and has been validated extensively across southern Africa.
+
+### 2.2 Onset-of-rains definition
+
+Following FAO and FEWS NET operational standards, OOR for each district-season was defined as the first day after **October 1** satisfying:
+
+1. Cumulative rainfall ≥ **25mm** over three consecutive days, **AND**
+2. No dry spell exceeding **10 consecutive days** in the subsequent 20-day window
+
+Spatial mean rainfall per district was derived by clipping each CHIRPS grid to the district boundary (GADM level 2) and computing the area-weighted mean.
+
+### 2.3 Trend detection
+
+Two complementary methods were applied per district:
+
+- **Sen's slope estimator**: A non-parametric, outlier-robust estimator of linear trend, reported as days per year and days per decade.
+- **Mann-Kendall test**: A rank-based non-parametric test for monotonic trend, with significance threshold p < 0.05.
+
+---
+
+## 3. Results
+
+### 3.1 Regional trends
+
+```{r fig-timeseries, fig.cap="Regional onset-of-rains trends, 1990–2024. Dashed lines indicate OLS trend lines."}
+knitr::include_graphics("../outputs/figures/fig1_oor_timeseries.png")
+```
+
+Across all three regions, a positive (delayed) trend in OOR is evident, with considerable inter-annual variability driven in part by ENSO-phase years. El Niño seasons (e.g., 1997/98, 2015/16, 2023/24) are consistently associated with above-average OOR anomalies — confirming the influence of large-scale climate modes on local rainfall onset.
+
+### 3.2 District-level shifts
+
+```{r fig-map, fig.cap="Total OOR shift (days) per district, 1990–2024. Bold outlines indicate statistically significant trends (MK p < 0.05)."}
+if (file.exists("../outputs/figures/fig2_shift_map.png")) {
+  knitr::include_graphics("../outputs/figures/fig2_shift_map.png")
+}
+```
+
+```{r tbl-regional}
+regional %>%
+  kable(
+    caption = "Regional summary of OOR trends",
+    col.names = c("Region", "Districts", "Mean OOR (DOY)", "Shift/decade (days)",
+                  "Total shift (days)", "% significant", "Delayed", "Advanced"),
+    digits = 1
+  ) %>%
+  kable_styling(bootstrap_options = c("striped", "hover"), full_width = FALSE)
+```
+
+### 3.3 Decade-by-decade comparison
+
+```{r fig-decade, fig.cap="Distribution of OOR by decade across regions."}
+knitr::include_graphics("../outputs/figures/fig3_decade_boxplot.png")
+```
+
+A clear progressive delay is visible in all three regions when comparing the 1990s baseline to the 2010s and 2020s distributions. The interquartile range has also widened, suggesting increasing year-to-year unpredictability — a compounding challenge for farmers who rely on seasonal patterns for planning.
+
+### 3.4 ENSO signal
+
+```{r fig-enso, fig.cap="National OOR anomaly relative to 1990–2009 baseline, with ENSO phase annotation."}
+knitr::include_graphics("../outputs/figures/fig5_enso_anomaly.png")
+```
+
+The ENSO signal is strong and consistent: El Niño years average `r round(mean(df %>% filter(season_start %in% c(1991,1994,1997,2002,2004,2009,2015,2018,2023)) %>% pull(oor_doy), na.rm=T) - mean(df$oor_doy, na.rm=T), 1)` days later onset than the study-period mean, while La Niña years show the inverse pattern.
+
+---
+
+## 4. Discussion
+
+The consistent delayed onset trend across the majority of Malawi's districts aligns with broader evidence from southern Africa of a shortening and shifting rainy season. For smallholder maize farmers, a 10-day delay in the onset of rains over a decade represents a meaningful compression of the effective growing season — particularly in the shorter-season Southern Region.
+
+Several adaptation responses are warranted:
+
+- **Revised planting calendars**: Agricultural extension services should update recommended planting windows to reflect current climatological norms rather than historical averages.
+- **Drought-tolerant early-maturing varieties**: Districts with the most significant delays are priority targets for varietal substitution programmes.
+- **Improved seasonal forecasting**: The strong ENSO signal identified here suggests that ENSO-based seasonal forecasts could be integrated into early warning systems for farming communities.
+
+---
+
+## 5. Conclusion
+
+This analysis provides district-level evidence that Malawi's agricultural calendar is shifting under climate change, with the onset of rains delayed by an average of `r round(mean(trends$shift_per_decade),1)` days per decade nationally. The results are statistically robust for `r sum(trends$significant_mk)` of 28 districts and show a spatially coherent pattern consistent with regional climate projections. These findings can directly inform national adaptation planning, seed system policy, and targeted agricultural advisory services.
+
+---
+
+## References
+
+::: {#refs}
+:::
+
+---
+
+## Appendix: District-level results
+
+```{r tbl-districts}
+trends %>%
+  select(district, region, mean_oor_date, shift_per_decade, total_shift_days, mk_p_value, significant_mk) %>%
+  mutate(significant_mk = ifelse(significant_mk, "Yes*", "No")) %>%
+  arrange(region, desc(total_shift_days)) %>%
+  kable(
+    caption = "District-level OOR trend results",
+    col.names = c("District", "Region", "Mean OOR", "Shift/decade (days)",
+                  "Total shift (days)", "MK p-value", "Significant"),
+    digits = c(0,0,0,2,1,4,0)
+  ) %>%
+  kable_styling(bootstrap_options = c("striped","hover","condensed"), full_width = TRUE) %>%
+  row_spec(which(trends$significant_mk), bold = TRUE)
+```

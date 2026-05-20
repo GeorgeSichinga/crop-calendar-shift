@@ -1,0 +1,13 @@
+region,decade,mean_oor,se_oor,n
+Northern,1990s,334.6,1.27,56
+Northern,2000s,338,1.23,58
+Northern,2010s,341.2,1.05,59
+Northern,2020s,343.9,1.99,24
+Central,1990s,328.5,1,85
+Central,2000s,333.1,0.94,89
+Central,2010s,338.7,0.95,87
+Central,2020s,340.2,2.06,35
+Southern,1990s,316.4,0.78,128
+Southern,2000s,322.1,0.9,127
+Southern,2010s,325.6,0.82,125
+Southern,2020s,328.8,1.53,51
